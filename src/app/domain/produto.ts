@@ -7,4 +7,5 @@ export interface Produto {
     inventoryStatus?: string;
     categoria?: string;
     dataEntrega?: any;
+    selecionado: boolean;
 }

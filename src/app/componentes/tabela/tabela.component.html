@@ -1,5 +1,5 @@
 <div class="card">
-    <p-table #dt2 [columns]="selectedColumns" responsiveLayout="stack" [scrollable]="false" [reorderableColumns]="true"
+    <p-table #dt2 [columns]="selectedColumns"  (onFilter)="onFilter($event)" responsiveLayout="stack" [scrollable]="false" [reorderableColumns]="true"
         [value]="produtos" responsiveLayout="scroll"
         styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped" [paginator]="true" [rows]="10"
         [showCurrentPageReport]="true"

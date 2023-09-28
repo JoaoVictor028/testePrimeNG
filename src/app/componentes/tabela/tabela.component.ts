@@ -4,13 +4,10 @@ import 'jspdf-autotable';
 import { Produto } from 'src/app/domain/produto';
 import { ProdutoService } from 'src/app/services/produto.service';
 import { formatDate } from '@angular/common';
+import { TableFilterEvent } from 'primeng/table';
 
 
 
-interface ExportColumn {
-  title: string;
-  dataKey: string;
-}
 
 
 @Component({
@@ -28,23 +25,27 @@ export class TabelaComponent implements OnInit {
     quantidade: 0,
     inventoryStatus: '',
     categoria: '',
-    dataEntrega: ''
+    dataEntrega: '',
+    selecionado: true
   }
 
   cols!: any[];
 
+  rows!: any[];
+
   _selectedColumns!: any[];
 
-  exportColumns!: ExportColumn[];
-
-
-  constructor(private service: ProdutoService) { }
+  _selectedRows!: any[];
 
   produtos!: Produto[];
 
   statuses!: any[];
 
   categorias!: any[];
+
+  constructor(private service: ProdutoService) { }
+
+ 
 
   private getInventoryStatus(): any[] {
     const statusUnicoSet = new Set<string>();
@@ -84,7 +85,6 @@ export class TabelaComponent implements OnInit {
     return categoriaUnicoArray;
   }
 
-
   ngOnInit(): void {
 
     this.service.listar().subscribe((data: Produto[]) => {
@@ -92,7 +92,7 @@ export class TabelaComponent implements OnInit {
       this.statuses = this.getInventoryStatus()
       this.categorias = this.getCategorias()
       this.produtos.forEach((produto) => (produto.dataEntrega = new Date(<Date>produto.dataEntrega)));
-      
+      this._selectedRows = this.produtos;
     })
 
     // this.service.getProducts().then((data) => {
@@ -124,6 +124,20 @@ export class TabelaComponent implements OnInit {
     this._selectedColumns = this.cols.filter(col => val.includes(col));
   }
 
+  @Input() get selectedRows(): any[] {
+    return this._selectedRows;
+  }
+
+  set selectedRows(val: any[]) {
+    this._selectedRows = this.rows.filter(row => val.includes(row));
+  }
+
+  onFilter(event: TableFilterEvent) {
+    // `_selectedRows` será atualizado com as linhas filtradas
+    this._selectedRows = event.filteredValue;
+  }
+
+
   getSeverity(status: string) {
     switch (status) {
       case 'Fora de Estoque':
@@ -143,16 +157,18 @@ export class TabelaComponent implements OnInit {
     }
   }
 
+
   exportPdf() {
-    console.log(this.produtos)
     const customColumns = this.selectedColumns.map(col => ({
       title: col.header,
       dataKey: col.field
     }));
 
+    const customRows = this.selectedRows;
+
+    //#region Header
     const header = function (doc: jsPDF) {
       const tamanhoDoTexto = 25;
-
 
       doc.setFontSize(tamanhoDoTexto); //12
       doc.setTextColor(40);
@@ -174,8 +190,9 @@ export class TabelaComponent implements OnInit {
 
       doc.text(headerText, xTexto, yTexto);
     };
+    //#endregion 
 
-
+    //#region MARCA D'AGUA
     const addWatermarkAsync = async (doc: jsPDF) => {
       const marcaDagua = 'assets/images/star.png';
 
@@ -204,9 +221,9 @@ export class TabelaComponent implements OnInit {
         console.error(err);
       }
     };
+    //#endregion
 
-
-
+    //#region FOOTER
     const footer = function (doc: jsPDF, pageNumber: any,) {
       doc.setFontSize(14);
       doc.setTextColor(40);
@@ -214,12 +231,14 @@ export class TabelaComponent implements OnInit {
         align: 'center'
       });
     };
-
-    const doc = new jsPDF('l', 'px', 'a4');
+    //#endregion
     
+    
+    const doc = new jsPDF('l', 'px', 'a4');
+
     (doc as any).autoTable({
       columns: customColumns,
-      body: this.produtos,
+      body: customRows,
       didDrawPage: function (data: any) {
         header(doc);
         const pageNumber = data.pageNumber;
@@ -227,7 +246,6 @@ export class TabelaComponent implements OnInit {
         footer(doc, pageNumber);
       },
     });
-
     doc.save('produtos.pdf');
     //
   }
