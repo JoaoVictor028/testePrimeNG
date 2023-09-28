@@ -45,7 +45,6 @@ export class TabelaComponent implements OnInit {
 
   constructor(private service: ProdutoService) { }
 
- 
 
   private getInventoryStatus(): any[] {
     const statusUnicoSet = new Set<string>();
@@ -115,7 +114,7 @@ export class TabelaComponent implements OnInit {
     this._selectedColumns = this.cols.filter((col) => col.visible);
   }
 
-
+  //#region Columns
   @Input() get selectedColumns(): any[] {
     return this._selectedColumns;
   }
@@ -123,7 +122,9 @@ export class TabelaComponent implements OnInit {
   set selectedColumns(val: any[]) {
     this._selectedColumns = this.cols.filter(col => val.includes(col));
   }
+//#endregion
 
+  //#region Rows
   @Input() get selectedRows(): any[] {
     return this._selectedRows;
   }
@@ -136,7 +137,7 @@ export class TabelaComponent implements OnInit {
     // `_selectedRows` será atualizado com as linhas filtradas
     this._selectedRows = event.filteredValue;
   }
-
+  //#endregion
 
   getSeverity(status: string) {
     switch (status) {
