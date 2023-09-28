@@ -1,0 +1,108 @@
+<div class="card">
+    <p-table #dt2 [columns]="selectedColumns" responsiveLayout="stack" [scrollable]="false" [reorderableColumns]="true"
+        [value]="produtos" responsiveLayout="scroll"
+        styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped" [paginator]="true" [rows]="10"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando de {first} até {last} de {totalRecords} registros"
+        [exportHeader]="'selectedColumns'" [rowsPerPageOptions]="[10,25,50]">
+
+        <ng-template pTemplate="caption">
+            <p-multiSelect [options]="cols" [(ngModel)]="selectedColumns" optionLabel="header"
+                selectedItemsLabel="{0} Colunas Ativas" [style]="{minWidth: '200px'}"
+                placeholder="Selecione uma coluna para visualizar">
+            </p-multiSelect>
+            <button type="button" pButton pRipple icon="pi pi-file-pdf" (click)="exportPdf()"
+                class="p-button-warning mr-2" pTooltip="PDF" tooltipPosition="bottom"></button>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+
+            <tr>
+                <th *ngFor="let col of columns" [pSortableColumn]="col.field" pReorderableColumn>
+                    {{col.header}}
+                    <p-sortIcon [field]="col.field"></p-sortIcon>
+                </th>
+            </tr>
+            <tr>
+                <th *ngFor="let col of columns">
+
+                    <div [ngSwitch]="col.field">
+
+                        <ng-template [ngSwitchCase]="'categoria'">
+                                <p-columnFilter [field]="col.field" matchMode="in" display="menu"
+                                [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                                <ng-template pTemplate="header">
+                                    <div>
+                                        <span class="font-bold"> Categorias</span>
+                                    </div>
+                                </ng-template>
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <p-multiSelect [ngModel]="value" [options]="categorias" placeholder="Any"
+                                        (onChange)="filter($event.value)">
+                                        <ng-template let-option pTemplate="item">
+                                            <div class="inline-block vertical-align-middle">
+                                                <span>{{ option.value }}</span>
+                                            </div>
+                                        </ng-template>
+                                    </p-multiSelect>
+                                </ng-template>
+                            </p-columnFilter> 
+                        </ng-template>
+
+                        <ng-template [ngSwitchCase]="'dataEntrega'">
+                            <p-columnFilter type="date" [showOperator]="false" [field]="col.field"
+                                display="menu"></p-columnFilter>
+                        </ng-template>
+
+                        <ng-template [ngSwitchCase]="'inventoryStatus'">
+                            <p-columnFilter [field]="col.field" matchMode="equals" [showMenu]="false">
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <p-dropdown [ngModel]="value" [options]="statuses" (onChange)="filter($event.value)"
+                                        placeholder="Any" [showClear]="true">
+                                        <ng-template let-option pTemplate="item">
+                                            <p-tag [value]="option.value"
+                                                [severity]="getSeverity(option.label)"></p-tag>
+                                        </ng-template>
+                                    </p-dropdown>
+                                </ng-template>
+
+                            </p-columnFilter>
+                        </ng-template>
+
+                        <ng-template ngSwitchDefault>
+                            <p-columnFilter type="text" [field]="col.field"></p-columnFilter>
+                        </ng-template>
+                    </div>
+                </th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-produto let-columns="columns">
+            <tr>
+                <td *ngFor="let col of columns">
+                    <div [ngSwitch]="col.field">
+
+                        <ng-template [ngSwitchCase]="'inventoryStatus'">
+                            <p-tag [value]="produto.inventoryStatus"
+                                [severity]="getSeverity(produto.inventoryStatus)"></p-tag>
+                        </ng-template>
+
+                        <ng-template [ngSwitchCase]="'dataEntrega'">
+                            {{ produto.dataEntrega ? (produto.dataEntrega | date: 'dd/MM/yyyy') : '' }}
+                        </ng-template>
+
+
+                        <ng-template ngSwitchDefault>
+                            {{produto[col.field]}}
+                        </ng-template>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td>Sem registros</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
