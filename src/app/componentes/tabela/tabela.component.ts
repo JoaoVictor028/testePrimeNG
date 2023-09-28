@@ -165,7 +165,19 @@ export class TabelaComponent implements OnInit {
       dataKey: col.field
     }));
 
-    const customRows = this.selectedRows;
+    //const customRows = this.selectedRows;
+    const customRows = this.selectedRows.map((row) => {
+      // Formate os valores das células conforme necessário aqui
+      return {
+        codigo: row.codigo,
+        nome: row.nome,
+        preco: `R$ ${row.preco.toFixed(2)}`, // Exemplo de formatação do preço
+        quantidade: row.quantidade,
+        inventoryStatus: row.inventoryStatus,
+        categoria: row.categoria,
+        dataEntrega: formatDate(row.dataEntrega, 'dd/MM/yyyy', 'en-US'), // Exemplo de formatação de data
+      };
+    });
 
     //#region Header
     const header = function (doc: jsPDF) {
@@ -247,6 +259,7 @@ export class TabelaComponent implements OnInit {
         footer(doc, pageNumber);
       },
     });
+    //console.log(customRows)
     doc.save('produtos.pdf');
     //
   }
