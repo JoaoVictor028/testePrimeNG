@@ -94,13 +94,6 @@ export class TabelaComponent implements OnInit {
       this._selectedRows = this.produtos;
     })
 
-    // this.service.getProducts().then((data) => {
-    //   this.produtos = data;
-    //   this.statuses = this.getInventoryStatus()
-    //   this.categorias = this.getCategorias()
-    // });
-
-
     this.cols = [
       { field: 'codigo', header: 'Codigo', visible: false },
       { field: 'nome', header: 'Nome', visible: true },
@@ -171,11 +164,11 @@ export class TabelaComponent implements OnInit {
       return {
         codigo: row.codigo,
         nome: row.nome,
-        preco: `R$ ${row.preco.toFixed(2)}`, // Exemplo de formatação do preço
+        preco: `R$ ${row.preco.toFixed(2)}`, 
         quantidade: row.quantidade,
         inventoryStatus: row.inventoryStatus,
         categoria: row.categoria,
-        dataEntrega: formatDate(row.dataEntrega, 'dd/MM/yyyy', 'en-US'), // Exemplo de formatação de data
+        dataEntrega: formatDate(row.dataEntrega, 'dd/MM/yyyy', 'en-US'), 
       };
     });
 
