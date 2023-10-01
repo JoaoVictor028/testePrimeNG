@@ -1,19 +1,34 @@
 <div class="card">
-    <p-table #dt2 [columns]="selectedColumns"  (onFilter)="onFilter($event)" responsiveLayout="stack" [scrollable]="false" [reorderableColumns]="true"
-        [value]="produtos" responsiveLayout="scroll"
+    <p-table #dt2 [columns]="selectedColumns" (onFilter)="onFilter($event)" responsiveLayout="stack"
+        [scrollable]="false" [reorderableColumns]="true" [value]="produtos" responsiveLayout="scroll"
         styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped" [paginator]="true" [rows]="10"
         [showCurrentPageReport]="true"
         currentPageReportTemplate="Mostrando de {first} até {last} de {totalRecords} registros"
         [exportHeader]="'selectedColumns'" [rowsPerPageOptions]="[10,25,50]">
 
         <ng-template pTemplate="caption">
-            <p-multiSelect [options]="cols" [(ngModel)]="selectedColumns" optionLabel="header"
-                selectedItemsLabel="{0} Colunas Ativas" [style]="{minWidth: '200px'}"
-                placeholder="Selecione uma coluna para visualizar">
-            </p-multiSelect>
-            <button type="button" pButton pRipple icon="pi pi-file-pdf" (click)="exportPdf()"
-                class="p-button-warning mr-2" pTooltip="PDF" tooltipPosition="bottom"></button>
+            <div class="flex">
+
+                <div>
+                    <p-multiSelect [options]="cols" [(ngModel)]="selectedColumns" optionLabel="header"
+                    selectedItemsLabel="{0} Colunas Ativas" [style]="{minWidth: '200px'}"
+                    placeholder="Selecione uma coluna para visualizar">
+                </p-multiSelect>
+                </div>
+                
+                <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash"
+                    (click)="clear(dt2)"></button>
+
+                <button type="button" pButton pRipple icon="pi pi-file-pdf" (click)="exportPdf()"
+                    class="p-button-warning mr-2" pTooltip="PDF" tooltipPosition="bottom">
+                </button>
+
+                <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()"
+                    class="p-button-success mr-2" pTooltip="XLS" tooltipPosition="bottom">
+                </button>
+            </div>
         </ng-template>
+
         <ng-template pTemplate="header" let-columns>
 
             <tr>
@@ -21,7 +36,7 @@
                     {{col.header}}
                     <p-sortIcon [field]="col.field"></p-sortIcon>
                 </th>
-                
+
             </tr>
             <tr>
                 <th *ngFor="let col of columns">
@@ -29,8 +44,8 @@
                     <div [ngSwitch]="col.field">
 
                         <ng-template [ngSwitchCase]="'categoria'">
-                                <p-columnFilter [field]="col.field" matchMode="in" display="menu"
-                                [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                            <p-columnFilter [field]="col.field" matchMode="in" display="menu" [showMatchModes]="false"
+                                [showOperator]="false" [showAddButton]="false">
                                 <ng-template pTemplate="header">
                                     <div>
                                         <span class="font-bold"> Categorias</span>
@@ -46,7 +61,7 @@
                                         </ng-template>
                                     </p-multiSelect>
                                 </ng-template>
-                            </p-columnFilter> 
+                            </p-columnFilter>
                         </ng-template>
 
                         <ng-template [ngSwitchCase]="'dataEntrega'">

@@ -1,10 +1,13 @@
 import { Component, Input, OnInit, } from '@angular/core';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import { Produto } from 'src/app/domain/produto';
 import { ProdutoService } from 'src/app/services/produto.service';
 import { formatDate } from '@angular/common';
-import { TableFilterEvent } from 'primeng/table';
+import { Table, TableFilterEvent } from 'primeng/table';
+
+import jsPDF from 'jspdf';
+import 'jspdf-autotable'
+import * as XLSX from 'xlsx';
+
 
 
 
@@ -115,7 +118,7 @@ export class TabelaComponent implements OnInit {
   set selectedColumns(val: any[]) {
     this._selectedColumns = this.cols.filter(col => val.includes(col));
   }
-//#endregion
+  //#endregion
 
   //#region Rows
   @Input() get selectedRows(): any[] {
@@ -151,6 +154,9 @@ export class TabelaComponent implements OnInit {
     }
   }
 
+  clear(table: Table) {
+    table.clear();
+  }
 
   exportPdf() {
     const customColumns = this.selectedColumns.map(col => ({
@@ -159,16 +165,16 @@ export class TabelaComponent implements OnInit {
     }));
 
     //const customRows = this.selectedRows;
+
     const customRows = this.selectedRows.map((row) => {
-      // Formate os valores das células conforme necessário aqui
       return {
         codigo: row.codigo,
         nome: row.nome,
-        preco: `R$ ${row.preco.toFixed(2)}`, 
+        preco: `R$ ${row.preco.toFixed(2)}`,
         quantidade: row.quantidade,
         inventoryStatus: row.inventoryStatus,
         categoria: row.categoria,
-        dataEntrega: formatDate(row.dataEntrega, 'dd/MM/yyyy', 'en-US'), 
+        dataEntrega: formatDate(row.dataEntrega, 'dd/MM/yyyy', 'en-US'),
       };
     });
 
@@ -181,8 +187,8 @@ export class TabelaComponent implements OnInit {
 
 
       // Adicione a imagem no cabeçalho
-      const imgData = 'assets/images/max.png';
-      const imgLargura = 30;
+      const imgData = 'assets/images/star_net_logo.png';
+      const imgLargura = 40;
       const imgAltura = 30;
       doc.addImage(imgData, 'PNG', 5, 5, imgLargura, imgAltura);
 
@@ -200,7 +206,7 @@ export class TabelaComponent implements OnInit {
 
     //#region MARCA D'AGUA
     const addWatermarkAsync = async (doc: jsPDF) => {
-      const marcaDagua = 'assets/images/star.png';
+      const marcaDagua = 'assets/images/star_consulting_logo.png';
 
       const pageWidth = doc.internal.pageSize.getWidth(); //Largura da Pagina
       const pageHeight = doc.internal.pageSize.getHeight(); // Altura da Pagina
@@ -238,8 +244,8 @@ export class TabelaComponent implements OnInit {
       });
     };
     //#endregion
-    
-    
+
+
     const doc = new jsPDF('l', 'px', 'a4');
 
     (doc as any).autoTable({
@@ -255,6 +261,19 @@ export class TabelaComponent implements OnInit {
     //console.log(customRows)
     doc.save('produtos.pdf');
     //
+  }
+
+
+  exportExcel() {
+    const customColumns = this.selectedColumns.map(col => col.header);
+    const customRows = this.selectedRows.map(row => this.selectedColumns.map(col => row[col.field]));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([customColumns, ...customRows]);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Produtos');
+
+    // Salvar o arquivo Excel
+    XLSX.writeFile(wb, 'produtos.xlsx');
   }
 }
 
